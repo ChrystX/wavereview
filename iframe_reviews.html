@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>De Wave Academy Reviews</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      margin: 0;
+      background: #f9f9f9;
+    }
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    .review {
+      display: none;
+      background: white;
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .review.active {
+      display: block;
+    }
+    .stars {
+      color: gold;
+      font-size: 18px;
+    }
+    .author {
+      margin-top: 10px;
+      font-weight: bold;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Reviews for De Wave Academy</h2>
+    <div id="reviews-container">Loading reviews...</div>
+  </div>
+
+  <script>
+    const placeId = "ChIJP1D9H1DCei4RZtJ5ObTCnN4";
+    const apiKey = "AIzaSyBNgNahmH7uIFsOPaVF1x1I8EIQoxe7STo"; // 👀 you absolute menace
+
+    async function fetchReviews() {
+      const res = await fetch(`https://corsproxy.io/?https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&fields=reviews&key=${apiKey}`);
+      const data = await res.json();
+      const reviews = data.result?.reviews || [];
+      const container = document.getElementById("reviews-container");
+
+      if (!reviews.length) {
+        container.innerHTML = "No reviews found.";
+        return;
+      }
+
+      container.innerHTML = reviews.map((rev, i) => `
+        <div class="review ${i === 0 ? 'active' : ''}">
+          <div class="stars">${"★".repeat(rev.rating)}${"☆".repeat(5 - rev.rating)}</div>
+          <p>"${rev.text}"</p>
+          <div class="author">– ${rev.author_name}, ${rev.relative_time_description}</div>
+        </div>
+      `).join("");
+
+      let index = 0;
+      setInterval(() => {
+        const slides = document.querySelectorAll(".review");
+        slides[index].classList.remove("active");
+        index = (index + 1) % slides.length;
+        slides[index].classList.add("active");
+      }, 5000);
+    }
+
+    fetchReviews();
+  </script>
+</body>
+</html>
